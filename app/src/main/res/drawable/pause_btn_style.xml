@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+     <!--按下状态-->
+    <item
+        android:state_pressed="true"
+        android:drawable="@drawable/player_pause_press"/>
+    <!--松开状态-->
+    <!--android:state_pressed="false"-->
+    <item
+        android:state_pressed="false"
+        android:drawable="@drawable/player_pause_normal" />
+
+</selector>

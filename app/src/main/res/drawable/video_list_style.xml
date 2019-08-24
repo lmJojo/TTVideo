@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<item-->
+        <!--android:state_pressed="true"-->
+        <!--android:color="#6DF2FE"/>-->
+    <!-- 没有焦点时的背景颜色 -->
+    <item
+        android:state_window_focused="false"
+        android:drawable="@color/blue"/>
+
+    <!--&lt;!&ndash; 非触摸模式下获得焦点并单击时的背景颜色 &ndash;&gt;-->
+   <item
+       android:drawable="@color/list_TextGray"
+       android:state_focused="true"
+       android:state_pressed="true"/>
+
+ <!--&lt;!&ndash; 触摸模式下单击时的背景颜色 &ndash;&gt;-->
+
+  <item android:drawable="@color/yellow"
+      android:state_focused="false"
+      android:state_pressed="true"/>
+
+    <!--&lt;!&ndash;选中&ndash;&gt;-->
+    <item
+       android:state_selected="true"
+       android:drawable="@color/red"/>
+    <!-- 获得焦点时的背景  颜色 -->
+    <item
+        android:state_focused="true"
+        android:drawable="@color/green"/>
+
+
+</selector>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--<LinearLayout-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+     <!--&lt;!&ndash;button 后期去掉&ndash;&gt;-->
+
+        <!--<Button-->
+            <!--android:id="@+id/btn_open"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/pause_btn_style"-->
+            <!--android:visibility="gone"-->
+            <!--android:text="button"/>-->
+
+    <SurfaceView
+        android:id="@+id/sv_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--</LinearLayout>-->
+    <RelativeLayout
+        android:id="@+id/ly_loading_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/loading"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="视频正在加载中，请稍候……"
+            android:textColor="@color/white"
+            android:textSize="40sp"/>
+     </RelativeLayout>
+     <!--上边控制栏-->
+    <!--android:layout_marginLeft="100dp"-->
+    <RelativeLayout
+        android:id="@+id/ly_top_control"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#D1CECE"
+         >
+
+        <ImageView
+            android:id="@+id/back_image"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/player_back_normal"
+            android:layout_marginLeft="15dp"
+            />
+        <ImageView
+            android:id="@+id/close_image"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/player_close_normal"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            />
+        <ImageView
+            android:id="@+id/replay_image"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/player_endview_replay_normal"
+            android:layout_toLeftOf="@+id/close_image"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"/>
+        <TextView
+            android:id="@+id/tv_showlist"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:textSize="30sp"
+            android:gravity="center"
+            android:layout_toLeftOf="@+id/replay_image"
+            android:layout_marginRight="20dp"
+            android:text="播放列表"
+            android:background="@drawable/textview_border"  />
+
+    </RelativeLayout>
+
+    <!--&lt;!&ndash;android:visibility="gone"&ndash;&gt;     再加上-->
+    <ListView
+        android:id="@+id/videoName_list"
+        android:layout_width="305dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ly_top_control"
+        android:layout_above="@+id/ly_bottom_control"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"
+        android:background="#D1CECE">
+    </ListView>
+
+    <!--底部控制栏-->
+    <LinearLayout
+        android:id="@+id/ly_bottom_control"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="#D1CECE">
+
+        <!--android:layout_alignTop="@+id/null"-->
+        <!-- android:indeterminate="false"  模式下 ，可自己修改进度  -->
+        <SeekBar
+            android:id="@+id/seekBar_progress"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:max="100"
+
+            android:secondaryProgress="0"
+            android:indeterminate="false"
+            android:progressDrawable="@drawable/video_bar_style"
+            android:thumb="@drawable/player_seekbar_thumb2"
+            android:layout_alignTop="@+id/ly_bottom_control"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="-20dp"
+            android:layout_marginRight="-20dp"
+           />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@+id/ly_bottom_control">
+
+            <ImageView
+                android:id="@+id/pauseOrPlay_image"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/pause_btn_style" />
+
+            <ImageView
+                android:id="@+id/last_image"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="20dp"
+                android:layout_toLeftOf="@+id/pauseOrPlay_image"
+                android:scaleType="fitCenter"
+                android:src="@drawable/player_prev_normal" />
+
+            <ImageView
+                android:id="@+id/next_image"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@+id/pauseOrPlay_image"
+                android:scaleType="fitCenter"
+                android:src="@drawable/player_next_normal" />
+
+            <TextView
+                android:id="@+id/tv_recent_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:text="00:00:00"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/tv_recent_time"
+                android:text="/"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/tv_total_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="25dp"
+                android:layout_toRightOf="@+id/tv_recent_time"
+                android:text="00:00:00"
+                android:textSize="30sp" />
+
+            <ImageView
+                android:id="@+id/iv_fullscreen"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/player_fullscreen_normal2" />
+            <ImageView
+                android:id="@+id/iv_floatWindow"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_toLeftOf="@+id/iv_fullscreen"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/player_fullscreen_normal"
+                />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
+    <!--android:progressDrawable="@"-->

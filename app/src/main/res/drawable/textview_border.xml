@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <!--播放列表 外表框-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
+    <solid
+        android:color="#D1CECE" />
+    <stroke
+        android:width="1dip"
+        android:color="#07A4FD"/>
+</shape>

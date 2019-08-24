@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="15dp"
+    >
+    <!--android:background="#ffffff"-->
+
+    <ImageView
+        android:id="@+id/iv_sdfile_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginLeft="15dp"/>
+
+    <TextView
+        android:id="@+id/tv_sdfile_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:textSize="23sp"
+        android:layout_gravity="center"
+        android:textColor="@color/list_TextBlack"/>
+
+</LinearLayout>

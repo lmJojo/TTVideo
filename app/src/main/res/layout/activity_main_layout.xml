@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity"
+    >
+    
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/green"
+         >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/iv_open_sdfile"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/main_add"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="TTVideo"
+                style="@style/main_textView_style"
+                android:gravity="center_horizontal|center_vertical"
+                />
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/main_background"
+        >
+        <!--左侧视图-->
+        <LinearLayout
+            android:id="@+id/ly_left"
+            android:orientation="vertical"
+
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/background_line"
+                android:layout_marginTop="40dp"/>
+
+            <!--首页-->
+            <LinearLayout
+                android:id="@+id/ly_home"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingLeft="20dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/main_home"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/main_textView_style"
+                    android:text="首页"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/background_line"/>
+
+            <!--在线播放    android:layout_marginTop="10dp" -->
+            <LinearLayout
+                android:id="@+id/ly_online"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/main_online"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/main_textView_style"
+                    android:layout_marginLeft="10dp"
+                    android:text="在线播放"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/background_line"/>
+
+            <!--本地播放-->
+            <LinearLayout
+                android:id="@+id/ly_local"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/main_local"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/main_textView_style"
+                    android:text="本地播放"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/background_line"/>
+            <!--历史记录-->
+            <LinearLayout
+                android:id="@+id/ly_history"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp">
+
+                <ImageView
+                    android:layout_width="87dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/main_history"
+                    android:paddingLeft="5dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/main_textView_style"
+                    android:text="历史记录"/>
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/background_line"/>
+
+        </LinearLayout>
+
+        <!--右侧视图-->
+        <RelativeLayout
+            android:id="@+id/ly_right"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:background="@color/background_line"/>
+            <!--视频列表显示-->
+            <ListView
+                android:id="@+id/lv_maain_show"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="40dp">
+            </ListView>
+
+            <TextView
+                android:id="@+id/tv_headShow"
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="15dp"
+                android:padding="10dp"
+                android:textSize="25sp"
+                android:textColor="@color/list_TextBlack"
+                android:text="path"
+                android:background="@color/white"
+                android:visibility="gone"
+                />
+
+            <ListView
+                android:id="@+id/lv_sdfile_show"
+                android:layout_width="400dp"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/tv_headShow"
+                android:layout_alignParentRight="true"
+                android:background="@color/white"
+                android:visibility="gone">
+
+            </ListView>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

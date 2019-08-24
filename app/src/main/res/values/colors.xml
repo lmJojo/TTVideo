@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="red">#E70909</color>
+    <color name="yellow">#FFEB3B</color>
+    <color name="green">#4CAF50</color>
+    <color name="orange">#FF9800</color>
+    <color name="orangeback">#EDE9A642</color>
+
+    <color name="black">#000</color>
+
+    <color name="transparent">#55C6C7C7</color>    <!-- 透明背景 -->
+    <color name="blue">#6DF2FE</color>             <!-- 选中字体 -->
+    <color name="white">#F7F7F2</color>    <!--默认字体 -->
+
+    <!--mainActivty 界面相关-->
+    <color name="background_line">#585757</color>
+    <color name="list_TextBlack">#131212</color>
+    <color name="list_TextGray">#747272</color>
+
+</resources>
