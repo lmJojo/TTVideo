@@ -4,7 +4,7 @@ package com.studyboy.lmvideo.listdata;
  *  主页视频列表 listView 显示类型 ，包括 名字、 大小、时长、路径
  *  图标已固定，路径不显示
  */
-public class VideoParam {
+public class VideoBean {
 
 //    private int imageId;
     private String videoPath = null;

@@ -8,10 +8,10 @@ import java.util.List;
  */
 public class OnlineVideoData {
 
-    List<VideoParam>  onlineVideoList = new ArrayList<>();
+    List<VideoBean>  onlineVideoList = new ArrayList<>();
     String size = " ";              // 后期判断为 " " 的话，显示unknown
     String duration = " ";
-    public  List<VideoParam> getOnlineVideoData(){
+    public  List<VideoBean> getOnlineVideoData(){
 
         String path11 = "http://vfx.mtime.cn/Video/2019/03/19/mp4/190319212559089721.mp4";
         String path3 = "http://vfx.mtime.cn/Video/2019/03/19/mp4/190319222227698228.mp4";
@@ -26,7 +26,7 @@ public class OnlineVideoData {
         String[] path = { path11, path3 ,path4,path5,path6, path7, path8 ,path9,path10};
 
         for(int i = 0;i < path.length; i++ ){
-            VideoParam videoParam = new VideoParam();
+            VideoBean videoParam = new VideoBean();
             // 获取 path 和name
             String name = getVideoFileName(path[i]);
             videoParam.setVideoName(name);

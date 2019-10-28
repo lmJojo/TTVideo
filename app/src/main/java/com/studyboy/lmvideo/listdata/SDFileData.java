@@ -2,7 +2,6 @@ package com.studyboy.lmvideo.listdata;
 
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.studyboy.lmvideo.R;
 
@@ -17,69 +16,65 @@ import static android.content.ContentValues.TAG;
 
 public class SDFileData {
 
-    List<SDFileParam>  SDFileList = new ArrayList<>();
+    List<SDFileBean>  SDFileList = new ArrayList<>();
+    
+    public   List<SDFileBean> getSDFileList(){
+        if( SDFileList.size() > 0){
+            Log.d(TAG, "getSDFileList: ******* 有数据的呀");
+        }
+        return SDFileList;
+    }
 
     /**
-     *  获取该路径下的txt文件或文件夹，加入 listView 中显示
+     *  获取该路径下的 mp4 文件或文件夹，加入 listView 中显示
      * @param filePath
      */
-    public List<SDFileParam> getFileDirectory( String filePath){
+    public void getFileDirectory(String filePath){
 
         File file = new File(filePath);
 
 //        file.getPath();
-        File[] files = null;
-        files = file.listFiles();
-        // 文件列表按时间降序排列
-//        Arrays.sort(files, new Comparator<File>() {
-//            public int compare(File f1, File f2) {
-//                long diff = f1.lastModified() - f2.lastModified();
-//                if (diff > 0)
-//                    return -1;
-//                else if (diff == 0)
-//                    return 0;
-//                else
-//                    return 1;//如果 if 中修改为 返回-1 同时此处修改为返回 1  排序就会是递减
-//            }
-//            public boolean equals(Object obj) {
-//                return true;
-//            }
-//        });
-        // 按文件名称排序
-        List fileList = Arrays.asList(files);
-        // 文件列表按名称排列
-        Collections.sort(fileList, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                if (o1.isDirectory() && o2.isFile())
-                    return -1;
-                if (o1.isFile() && o2.isDirectory())
-                    return 1;
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        SDFileParam sdFileParam;
-        // fileShowList 列表的初始化
-        initShowList();
-        for(int i = 0; i < files.length; i++){
-            file = files[i] ;
-            // 是文件夹或TXT文件
-            if ( checkFileShape(file) ){
-                String path = file.getAbsolutePath();
-                String name =file.getName();
-                //  根据文件夹或TXT 获取对应图标
-                if( file.isDirectory()){
-                    // 图标、路径、名字
-                    sdFileParam = new SDFileParam(R.drawable.main_folder,path,name);
-                    SDFileList.add(sdFileParam);
-                } else {
-                    sdFileParam = new SDFileParam(R.drawable.main_mp4,path,name);
-                    SDFileList.add(sdFileParam);
+        File[] files = file.listFiles();
+        
+        if( files != null ) {
+            List fileList = Arrays.asList(files);
+            // 文件列表按名称排列
+            Collections.sort(fileList, new Comparator<File>() {
+                @Override
+                public int compare(File o1, File o2) {
+                    if (o1.isDirectory() && o2.isFile())
+                        return -1;
+                    if (o1.isFile() && o2.isDirectory())
+                        return 1;
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+            SDFileBean sdFileParam;
+            // fileShowList 列表的初始化
+            initShowList();
+            for (int i = 0; i < files.length; i++) {
+                file = files[i];
+                // 是文件夹或TXT文件
+                if (checkFileShape(file)) {
+                    String path = file.getAbsolutePath();
+                    String name = file.getName();
+                    //  根据文件夹或TXT 获取对应图标
+                    if (file.isDirectory()) {
+                        // 图标、路径、名字
+                        sdFileParam = new SDFileBean(R.drawable.main_folder, path, name);
+                        SDFileList.add(sdFileParam);
+                    } else {
+                        sdFileParam = new SDFileBean(R.drawable.main_mp4, path, name);
+                        SDFileList.add(sdFileParam);
+                    }
                 }
             }
+        } else {
+            Log.d(TAG, "getFileDirectory: ******* 空列表");
         }
-        return SDFileList;
+
     }
+    
 
     /**
      *  判断文件类型
@@ -114,18 +109,13 @@ public class SDFileData {
         if(SDFileList != null){
             SDFileList.clear();
         }
-        SDFileParam sdFileParam = new SDFileParam(R.drawable.main_folder,getSDRoot(),"返回根目录");
-//        sdFileParam.setSdFileName("返回根目录");
-//        sdFileParam.setImageId(R.drawable.main_folder);
-//        sdFileParam.setSdFilePath(getSDRoot());
-        SDFileList.add(sdFileParam);
-         sdFileParam = new SDFileParam(R.drawable.main_folder," ","返回上一级");
-//        sdFileParam.setSdFileName("返回上一级");
-//        sdFileParam.setImageId(R.drawable.main_folder);
-//        sdFileParam.setSdFilePath(" ");
-        SDFileList.add(sdFileParam);
+        SDFileBean sdFileBean = new SDFileBean(R.drawable.main_folder,getSDRoot(),"返回根目录");
 
-        sdFileParam = null;
+        SDFileList.add(sdFileBean);
+         sdFileBean = new SDFileBean(R.drawable.main_folder," ","返回上一级");
+
+        SDFileList.add(sdFileBean);
+
     }
 
     /**
@@ -137,6 +127,7 @@ public class SDFileData {
         if(!checkSDcard()){
             Log.d(TAG, "getSDRoot: ******************************   no sdcard  ");
             SDRoot = "";
+            return SDRoot;
         }
         try{
             SDRoot = Environment.getExternalStorageDirectory().toString();

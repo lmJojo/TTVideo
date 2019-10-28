@@ -18,7 +18,7 @@ public class HistoryVideoData {
     private static final String TAG = "HistoryVideoData";
     private HistoryDataBaseHelper dbHelper;
     private Context context;
-    List<VideoParam> historyList = new ArrayList<>();
+    List<VideoBean> historyList = new ArrayList<>();
 
     public HistoryVideoData(Context context){
         this.context = context;
@@ -28,7 +28,7 @@ public class HistoryVideoData {
      *  数据库中获取历史数据
      * @return
      */
-    public  List<VideoParam> getHistoryData(){
+    public  List<VideoBean> getHistoryData(){
         historyList.clear();
         String videoPath = null;
         String videoName = null;
@@ -98,7 +98,7 @@ public class HistoryVideoData {
      * @param datetime
      */
     public void addList(String path,String name,String datetime){
-        VideoParam videoParam = new VideoParam();
+        VideoBean videoParam = new VideoBean();
         videoParam.setVideoPath(path);
         videoParam.setVideoName(name);
         videoParam.setVideoTime(" ");      // 后面判断为 " " 的话，显示unknown

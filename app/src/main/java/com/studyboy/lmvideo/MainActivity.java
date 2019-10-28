@@ -1,18 +1,24 @@
 package com.studyboy.lmvideo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -20,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.studyboy.lmvideo.listViewShow.MainListAdapter;
 import com.studyboy.lmvideo.listViewShow.SDFileAdapter;
@@ -27,8 +34,8 @@ import com.studyboy.lmvideo.listdata.HistoryVideoData;
 import com.studyboy.lmvideo.listdata.LocalVideoData;
 import com.studyboy.lmvideo.listdata.OnlineVideoData;
 import com.studyboy.lmvideo.listdata.SDFileData;
-import com.studyboy.lmvideo.listdata.SDFileParam;
-import com.studyboy.lmvideo.listdata.VideoParam;
+import com.studyboy.lmvideo.listdata.SDFileBean;
+import com.studyboy.lmvideo.listdata.VideoBean;
 import com.studyboy.lmvideo.listdata.VideoPlayParam;
 
 import java.io.File;
@@ -43,14 +50,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /** 首页、在线、本地、历史 */
     private LinearLayout ly_Home,ly_Online,ly_Local,ly_History, ly_old; // ly_old 用于设定背景
     /** 本地或在线列表  、打开存储文件列表*/
-    private ListView main_listView_video,lv_Sdfile_show;
-    private TextView tv_HeadShow;
+    private ListView main_listView_video;
+
     /** 列表在线、本地、历史、用于显示*/
-    List<VideoParam> onlineVideoList,localVideoList,historyVideoList;
-    List<VideoParam> showVideoList = new ArrayList<VideoParam>();
+    List<VideoBean> onlineVideoList,localVideoList,historyVideoList;
+    List<VideoBean> showVideoList = new ArrayList<VideoBean>();
     List<VideoPlayParam>  playVideoList = new ArrayList<>();
 
-    List<SDFileParam> sdFileList = new ArrayList<>();
     /** sdFile listView  当前显示路径、根路径*/
     String  recentPath = null,rootPath = null;
     private boolean sdListIsShowing = false;
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final  int UPDATE_HOME = 0, UPDATE_ONLINE = 1, UPDATE_LOCAL = 2, UPDATE_HIS = 3;
     /** 当前选项名字，用于数据库删除*/
     private String videoName = null;
+    private ImageView main_view;
 
     /**  网络监听 */
     private IntentFilter intentFilter;
@@ -72,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(actionBar != null ) {
             actionBar.hide();
         }
+        getPermission();
+
         // 全屏显示
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -83,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         networkChangeReceiver = new NetworkChangeReceiver();
         // 注册广播（动态注册的，结束要取消）
         registerReceiver(networkChangeReceiver,intentFilter);
+
+        ly_Home.performClick();
     }
 
     public void  initUI(){
@@ -97,22 +108,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ly_Local.setOnClickListener(this);
         ly_History.setOnClickListener(this);
 
+        main_view = ( ImageView ) findViewById(R.id.main_iv);
         // listview 列表
         main_listView_video = (ListView) findViewById(R.id.lv_maain_show);
-        // SDFile 列表
-        tv_HeadShow = (TextView) findViewById(R.id.tv_headShow);
-        lv_Sdfile_show = (ListView)findViewById(R.id.lv_sdfile_show);
+
         // 右上角本地打开
         iv_OpenSDFile= (ImageView)findViewById(R.id.iv_open_sdfile);
         iv_OpenSDFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("TAG", "onClick:**************************** 打开本地SD ");
-                hideOrShowSDList(true);
-                // 列表初始化.获取根目录
-                rootPath = new SDFileData().getSDRoot();
-                sdFileListInit(rootPath);
-                sdFileListViewShow();
+                initPopWindow();
+
             }
         });
     }
@@ -122,12 +129,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()){
             case R.id.ly_home:
                 Log.d("TAG", "onClick:**************************** 主页0 ");
-                hideOrShowSDList(false);
                 updateBackGround(ly_Home);
+                main_view.setVisibility( View.VISIBLE);
                 break;
             case R.id.ly_online:
                 Log.d("TAG", "onClick:**************************** 在线1 ");
-                hideOrShowSDList(false);
                 updateBackGround(ly_Online);
                 if(onlineVideoList == null) {
                     // 获取在线视频列表
@@ -138,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.ly_local:
                 Log.d("TAG", "onClick:**************************** 本地2 ");
-                hideOrShowSDList(false);
                 updateBackGround(ly_Local);
                 if(localVideoList == null) {
                     // 获取本地视频列表,若已经获取则直接更新
@@ -149,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.ly_history:
                 Log.d("TAG", "onClick:**************************** 历史3 ");
-                hideOrShowSDList(false);
                 updateBackGround(ly_History);
                 updateListView(UPDATE_HIS);
                 break;
@@ -162,13 +166,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param ly_new
      */
     public void updateBackGround(LinearLayout ly_new){
-        ly_new.setBackgroundResource(R.color.orange);
+        ly_new.setSelected(true);
         // 去掉上个点击项背景
         if(ly_old != null){
-            ly_old.getBackground().setAlpha(0);
+            ly_old.setSelected(false);
+//            ly_old.getBackground().setAlpha(0);
+            Log.d(TAG, "updateBackGround: *********** 上个背景");
         }
-        ly_new.getBackground().setAlpha(255);
+//        ly_new.getBackground().setAlpha(255);
         ly_old = ly_new;
+        if(main_view.getVisibility() == View.VISIBLE){
+            main_view.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -178,15 +187,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void updateListView( int index){
         showVideoList.clear();
         if(index == UPDATE_ONLINE){
-            Log.d("TAG", "updateListView: *****************************  UPDATE_ONLINE ");
+            Log.d("TAG", "updateListView: ***************  UPDATE_ONLINE ");
             showVideoList.addAll(onlineVideoList);
         }
         else if(index == UPDATE_LOCAL) {
             // 直接赋值，后期会对localVideoList 产生影响
-            Log.d("TAG", "updateListView: *****************************  UPDATE_LOCAL ");
+            Log.d("TAG", "updateListView: *****************  UPDATE_LOCAL ");
             showVideoList.addAll(localVideoList);
         } else{
-            Log.d(TAG, "updateListView: *****************************  UPDATE_HIS ");
+            Log.d(TAG, "updateListView: *****************  UPDATE_HIS ");
             // 获取历史数据列表，实时更新，故每次都要重新获取数据
             HistoryVideoData historyVideoData = new HistoryVideoData(this);
             historyVideoList = historyVideoData.getHistoryData();
@@ -250,35 +259,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void StartOpenVideoActivty(int position ){
         Intent intent = new Intent(MainActivity.this,OpenVideoActivity.class);
-        Log.d(TAG, "StartOpenVideoActivty: *************************************** 当前列表位置 "+position);
+        Log.d(TAG, "StartOpenVideoActivty: *************************************** 当前列表位置 "+ position);
         intent.putExtra("position",position);
         intent.putExtra("playVideoList",(Serializable)playVideoList);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-    }
-
-    /** 显示或隐藏手动打开sdfile 列表 */
-    public void hideOrShowSDList(boolean shouldShow){
-        if( !shouldShow){
-            // 隐藏,点击首页、在线播放等地方时
-            if( sdListIsShowing){
-                tv_HeadShow.setVisibility(View.GONE);
-                lv_Sdfile_show.setVisibility(View.GONE);
-                sdListIsShowing = false;
-            }
-        } else {
-            // 根据状态隐藏或显示
-            if( !sdListIsShowing){
-                // 隐藏状态，显示
-                tv_HeadShow.setVisibility(View.VISIBLE);
-                lv_Sdfile_show.setVisibility(View.VISIBLE);
-                sdListIsShowing = true;
-            } else {
-                tv_HeadShow.setVisibility(View.GONE);
-                lv_Sdfile_show.setVisibility(View.GONE);
-                sdListIsShowing = false;
-            }
-        }
     }
 
     /**
@@ -305,69 +290,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         HistoryVideoData historyVideoData = new HistoryVideoData(MainActivity.this);
         historyVideoData.deleteInDataBase(videoName);
         // 刷新列表显示
-        updateListView(UPDATE_HIS);
+        updateListView( UPDATE_HIS );
     }
 
-    /**
-     *  初始化 打开 sdFile 显示列表，
-     */
-    public void sdFileListInit(String filePath){
-        recentPath = filePath;
 
-        SDFileData sdFileData = new SDFileData();
-        tv_HeadShow.setText(filePath);
-        // 获取显示列表
-        if(sdFileList != null){
-            sdFileList.clear();
+    private FilePopupWindow mFilePopWindow;
+    public void initPopWindow(){
+        if( mFilePopWindow == null ){
+            mFilePopWindow = new FilePopupWindow(MainActivity.this, iv_OpenSDFile );
+            mFilePopWindow.setOnWindowlisten(new FilePopupWindow.OnWindowListen() {
+                @Override
+                public void onFilePath(SDFileBean sdFileBean) {
+                    // mp4 文件，返回其完整路径，和名字
+                    playVideoBySD( sdFileBean.getSdFilePath(), sdFileBean.getSdFileName());
+                }
+            });
+        } else {
+            mFilePopWindow.init();
         }
-        List<SDFileParam> fileList = sdFileData.getFileDirectory(filePath);
-        sdFileList.addAll(fileList);
-    }
-
-    /**
-     *  sdFileListView 加载适配器，并显示 监听
-     */
-    public void  sdFileListViewShow(){
-        SDFileAdapter sdFileAdapter = new SDFileAdapter(this,R.layout.sdfile_show_item ,sdFileList);
-        lv_Sdfile_show.setAdapter(sdFileAdapter);
-        lv_Sdfile_show.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                SDFileParam sdFileParam = sdFileList.get(position);
-                File newFile = new File( sdFileParam.getSdFilePath() );
-
-                // 返回根目录
-                if(position == 0){
-                    sdFileListInit(rootPath);
-                    sdFileListViewShow();
-                }
-                // 返回上一级目录,SDfileName 为“ 返回上一级 ”，故加入 recentPath 作当前路径
-                else if(position == 1){
-//                    String parentFile = newFile.getName();
-                    File parentFile = new File(recentPath);
-                    if(!parentFile.exists() || parentFile.length() == 0) {
-                        System.out.println("上级目录不存在");
-                    }
-                    else{
-                        sdFileListInit( parentFile.getParent());  // 打开父路径并重新显示 listView
-                        sdFileListViewShow();
-                    }
-                }
-                // 点击文件夹或TXT文件
-                else{
-                    if(newFile.isDirectory()){
-                        // 打开新路径 并重新显示 listView
-                        sdFileListInit( sdFileParam.getSdFilePath());
-                        sdFileListViewShow();
-                    }
-                    else{
-                        // mp4 文件，返回其完整路径，和名字
-                        playVideoBySD( sdFileParam.getSdFilePath(), sdFileParam.getSdFileName());
-                    }
-                }
-            }
-        });
     }
 
     /**
@@ -415,6 +355,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
 
             }
+        }
+    }
+
+
+    /**
+     *  获取本地读取权限
+     */
+    public void getPermission(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            // 检查权限
+            int readCheck = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+            int writeCheck = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (readCheck == PackageManager.PERMISSION_GRANTED && writeCheck == PackageManager.PERMISSION_GRANTED) {
+                // 已有权限
+                Log.d(TAG, "getPermission:******** 已有权限 ");
+            } else {
+                // api > 23 还需要手动申请权限
+                ActivityCompat.requestPermissions( this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE }, 1);
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.d(TAG, "onRequestPermissionsResult: ******* 成功获取权限");
+            if( mFilePopWindow != null){
+                mFilePopWindow.getRootData();
+            }
+        } else {
+            Toast.makeText(MainActivity.this,"获取本地读写权限失败",Toast.LENGTH_SHORT );
+        }
+    }
+
+
+    private  long time = 0;
+    private Toast mToast = null;
+    /**
+     * 再按一次退出程序
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if( keyCode == KeyEvent.KEYCODE_BACK){
+            if(System.currentTimeMillis() - time > 2000 ){
+                mToast = Toast.makeText( MainActivity.this,"再按一次退出程序",Toast.LENGTH_SHORT );
+                mToast.show();
+                time = System.currentTimeMillis();
+            } else {
+                return super.onKeyDown(keyCode, event);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        if( mToast != null ){
+            mToast.cancel();
         }
     }
 

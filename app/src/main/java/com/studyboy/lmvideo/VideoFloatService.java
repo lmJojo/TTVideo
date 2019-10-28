@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,6 +19,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+
 
 public class VideoFloatService extends Service {
     public static final String TAG = "VideoFloatService";
@@ -53,8 +58,8 @@ public class VideoFloatService extends Service {
             // 判断悬浮窗是否打开
             return isShowing;
         }
-        public void openFloatWindow(){
-            FloatWindow();
+        public void openFloatWindow( String videoPath, int videoPosition){
+            FloatWindow( videoPath, videoPosition);
         }
     }
     @Override
@@ -72,15 +77,21 @@ public class VideoFloatService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //   path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/studyboy.mp4";
-        path = intent.getStringExtra("videoPath");
-        position = intent.getIntExtra("position",0);
+        String videoPath = intent.getStringExtra("videoPath");
+        int videoPosition = intent.getIntExtra("position",0);
         //  获取容器缓冲区的存储位置   私有模式
         sp = getSharedPreferences("config", MODE_PRIVATE);
-        FloatWindow();
+        FloatWindow(videoPath, videoPosition);
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public void FloatWindow(){
+    public void FloatWindow(String videoPath, int videoPosition){
+
+        // 延时隐藏控制栏
+        mHandler.postDelayed( mHide,4000 );
+
+        path = videoPath;
+        position = videoPosition;
         initFloatWindow();
         initContentView();
 
@@ -177,6 +188,7 @@ public class VideoFloatService extends Service {
                 }
             }
         });
+
 
     }
 
@@ -290,18 +302,7 @@ public class VideoFloatService extends Service {
                     moveY = recentY - downY;
                     if( Math.abs(moveX)<3 && Math.abs(moveY)<3 ){
                         Log.d(TAG, "onTouch: ************************************* 这是点击 ");
-                        if(iconIsShowing){
-                            iv_Close.setVisibility(View.GONE);
-                            iv_Full.setVisibility(View.GONE);
-                            iv_Pause.setVisibility(View.GONE);
-                            iconIsShowing = false;
-                        }
-                        else {
-                            iv_Close.setVisibility(View.VISIBLE);
-                            iv_Full.setVisibility(View.VISIBLE);
-                            iv_Pause.setVisibility(View.VISIBLE);
-                            iconIsShowing = true;
-                        }
+                        hideOrShow();
                     }
                     break;
                 default:
@@ -310,6 +311,31 @@ public class VideoFloatService extends Service {
             return true;
         }
     }
+
+    public void hideOrShow(){
+        if(iconIsShowing){
+            iv_Close.setVisibility(View.GONE);
+            iv_Full.setVisibility(View.GONE);
+            iv_Pause.setVisibility(View.GONE);
+            iconIsShowing = false;
+        }
+        else {
+            iv_Close.setVisibility(View.VISIBLE);
+            iv_Full.setVisibility(View.VISIBLE);
+            iv_Pause.setVisibility(View.VISIBLE);
+            iconIsShowing = true;
+            mHandler.removeCallbacks(mHide);
+            mHandler.postDelayed( mHide,4000 );
+        }
+    }
+
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    private Runnable mHide = new Runnable() {
+        @Override
+        public void run() {
+            hideOrShow(); // 显示或者隐藏顶部与底部视图
+        }
+    };
 
     /**
      *  更新悬浮窗位置
@@ -343,5 +369,7 @@ public class VideoFloatService extends Service {
         super.onDestroy();
 
     }
+
+
 
 }

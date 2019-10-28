@@ -1,5 +1,7 @@
 package com.studyboy.lmvideo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,11 +9,15 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -95,8 +101,12 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
         if(actionBar != null ) {
             actionBar.hide();
         }
+        // 一段时间不操作，则隐藏控制条
+        mHandler.postDelayed(mHide,5000);
+        // 隐藏下标题栏
+//        getWindow().setFlags(0x02000000, 0x02000000);
         // 全屏显示
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         Intent intent = getIntent();
         mSelect = intent.getIntExtra("position",0);
@@ -209,14 +219,16 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
                 lastOrNextVideo(1);
                 break;
             case R.id.iv_floatWindow:
-                /******************************   悬浮窗   ******************************/
+                /******************************   api 23 以上 悬浮窗权限申请   ******************************/
+                requestOverlayPermission();
                 Log.d( TAG, "onClick:***************************  点击悬浮窗  ");
                 openFloatWindows();
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 break;
             case R.id.iv_fullscreen:
                 Log.d( TAG, "onClick:***************************  点击全屏  ");
-                fullScreenVideo();
+                setFullScreen();
+//                fullScreenVideo();
                 break;
             case R.id.back_image:
                 Log.d( TAG,  "onClick:***************************  点击返回  ");
@@ -255,9 +267,14 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
                 Log.d(TAG, "openFloatWindows: **************************  悬浮窗在显示中 ");
             }
             else {
-                floatWindowBinder.openFloatWindow();
+                floatWindowBinder.openFloatWindow(path,position);
             }
         }
+        Intent i= new Intent(Intent.ACTION_MAIN);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //android123提示如果是服务里调用，必须加入new task标识
+        i.addCategory(Intent.CATEGORY_HOME);
+        startActivity(i);
+
     }
 
     /**
@@ -306,6 +323,7 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
                setAboutVideo.updateTimeWithFormat( tv_recentTime,floatPosition);
             }
         }
+        stopFloatService(); // 停止服务
     }
 
     /**
@@ -379,36 +397,40 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+    private boolean isFull = false;
     /**
-     *  全屏显示或取消
+     * 全屏设置
      */
-    public void fullScreenVideo(){
-        boolean isPause = false;
+    private void setFullScreen() {
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+            View v = this.getWindow().getDecorView();
+            if(!isFull) {
+                v.setSystemUiVisibility(View.GONE);
+            }else {
+                v.setSystemUiVisibility(View.VISIBLE);
+            }
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            View decorView = getWindow().getDecorView();
+            if(!isFull) {
+                //for new api versions.
+                int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
+                decorView.setSystemUiVisibility(uiOptions);
+                // 图标替换
+                iv_FullScreen.setImageResource(R.drawable.player_fullscreen_press2);
+                Log.d(TAG, "setFullScreen: ***************** 隐藏");
+            }else{
+                int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+                decorView.setSystemUiVisibility(uiOptions);
+                // 图标替换
+                iv_FullScreen.setImageResource(R.drawable.player_fullscreen_normal2 );
+                Log.d(TAG, "setFullScreen: ********************** 显示");
+            }
+        }
+        isFull = !isFull;
 
-        if( !mMediaPlayer.isPlaying()){
-            mMediaPlayer.start();
-            Log.d("TAG", "fullScreenVideo:***************************** 在暂停中，没有效果 ");
-            isPause = true;
-        }
-        if(isFullScreen){
-            // 适应屏幕显示
-            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-            // 图标替换
-            iv_FullScreen.setImageResource(R.drawable.player_fullscreen_normal2 );
-            isFullScreen = false;
-        } else {
-            // 充满屏幕显示，保持比例，如果屏幕比例不对，则进行裁剪
-            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-            // 图标替换
-            iv_FullScreen.setImageResource(R.drawable.player_fullscreen_press2);
-            isFullScreen = true;
-        }
-        if(isPause){
-            mMediaPlayer.pause();
-            // 暂停
-            Log.d("TAG", "fullScreenVideo:***************************** 重新暂停 ");
-        }
     }
+
 
     /**
      *  切换视频，打开新文件
@@ -713,8 +735,19 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
             ly_bottom__Control.setVisibility(View.VISIBLE);
             ly_top_Control.setVisibility(View.VISIBLE);
             isShowing = true ;
+            mHandler.removeCallbacks(mHide);
+            mHandler.postDelayed(mHide,5000);
+
         }
     }
+
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    private Runnable mHide = new Runnable() {
+        @Override
+        public void run() {
+            showOrHide(); // 显示或者隐藏顶部与底部视图
+        }
+    };
 
     /**
      * 屏幕触摸监听，控制 底部和顶部控制栏
@@ -749,11 +782,34 @@ public class OpenVideoActivity extends AppCompatActivity implements View.OnClick
         hisData.saveHistoryToDB(history);
     }
 
+
     @Override
     public void finish() {
         stopFloatService(); // 停止服务
         super.finish();
         Log.d(TAG ,"******************************  onFinish");
 
+    }
+
+
+    private static final int REQUEST_CODE = 1111;
+
+    private void requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(this)) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(intent, REQUEST_CODE);
+            } else {
+
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "onRequestPermissionsResult: ******* 成功获取权限");
+        }
     }
 }

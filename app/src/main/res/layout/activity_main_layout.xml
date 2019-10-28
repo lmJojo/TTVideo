@@ -12,11 +12,12 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/green"
+        android:background="#DFF5C6"
          >
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <ImageView
                 android:id="@+id/iv_open_sdfile"
                 android:layout_width="wrap_content"
@@ -33,7 +34,6 @@
                 android:gravity="center_horizontal|center_vertical"
                 />
         </RelativeLayout>
-
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
@@ -63,8 +63,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
+                android:background="@drawable/main_btn_bg"
                 android:paddingLeft="20dp">
 
                 <ImageView
@@ -89,6 +88,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/main_btn_bg"
                 android:paddingLeft="20dp">
 
                 <ImageView
@@ -114,6 +114,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/main_btn_bg"
                 android:paddingLeft="20dp">
 
                 <ImageView
@@ -137,6 +138,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/main_btn_bg"
                 android:paddingLeft="20dp">
 
                 <ImageView
@@ -168,6 +170,7 @@
                 android:layout_width="3dp"
                 android:layout_height="match_parent"
                 android:background="@color/background_line"/>
+
             <!--视频列表显示-->
             <ListView
                 android:id="@+id/lv_maain_show"
@@ -176,30 +179,40 @@
                 android:layout_marginTop="40dp">
             </ListView>
 
-            <TextView
-                android:id="@+id/tv_headShow"
-                android:layout_width="400dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginLeft="15dp"
-                android:padding="10dp"
-                android:textSize="25sp"
-                android:textColor="@color/list_TextBlack"
-                android:text="path"
-                android:background="@color/white"
-                android:visibility="gone"
-                />
-
-            <ListView
-                android:id="@+id/lv_sdfile_show"
-                android:layout_width="400dp"
+            <ImageView
+                android:id="@+id/main_iv"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/tv_headShow"
-                android:layout_alignParentRight="true"
-                android:background="@color/white"
-                android:visibility="gone">
+                android:layout_marginLeft="4dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/main_view"/>
 
-            </ListView>
+            <!--<TextView-->
+                <!--android:id="@+id/tv_headShow"-->
+                <!--android:layout_width="400dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_marginLeft="15dp"-->
+                <!--android:padding="10dp"-->
+                <!--android:textSize="25sp"-->
+                <!--android:textColor="@color/list_TextBlack"-->
+                <!--android:text="path"-->
+                <!--android:background="@color/white"-->
+                <!--android:visibility="gone"-->
+                <!--/>-->
+
+            <!--<ListView-->
+                <!--android:id="@+id/lv_sdfile_show"-->
+                <!--android:layout_width="400dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_below="@+id/tv_headShow"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:background="@color/white"-->
+                <!--android:visibility="gone">-->
+
+            <!--</ListView>-->
+
+
 
         </RelativeLayout>
 

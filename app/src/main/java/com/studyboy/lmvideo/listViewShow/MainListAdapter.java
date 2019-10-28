@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.studyboy.lmvideo.R;
-import com.studyboy.lmvideo.listdata.VideoParam;
+import com.studyboy.lmvideo.listdata.VideoBean;
 
 import java.util.List;
 
@@ -16,10 +16,10 @@ import java.util.List;
  *  主界面视频列表的适配器，设定名字，大小，时长， 图标已固定，路径不显示
  *  ming 2019.08.07
  */
-public class MainListAdapter extends ArrayAdapter<VideoParam> {
+public class MainListAdapter extends ArrayAdapter<VideoBean> {
 
     private int resourceId;
-    public MainListAdapter(Context context, int textViewResourceId, List<VideoParam> objects) {
+    public MainListAdapter(Context context, int textViewResourceId, List<VideoBean> objects) {
 
         // 上下文，子项布局id， 数据
         super(context, textViewResourceId, objects);
@@ -29,7 +29,7 @@ public class MainListAdapter extends ArrayAdapter<VideoParam> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
 
-        VideoParam videoParam = getItem(position);
+        VideoBean videoParam = getItem(position);
         View view;
         ViewHolder viewHolder;
         if(convertView == null){

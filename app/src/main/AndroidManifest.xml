@@ -24,7 +24,12 @@
             android:name=".OpenVideoActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask">
+             <!--&lt;!&ndash;<intent-filter>&ndash;&gt;-->
+                 <!--&lt;!&ndash;&lt;!&ndash; 隐藏系统条 &ndash;&gt;&ndash;&gt;-->
+                 <!--<action android:name="android.readboy.FLAG_HIDE_SYSTEMBAR" />-->
+             <!--&lt;!&ndash;</intent-filter>&ndash;&gt;-->
+        </activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

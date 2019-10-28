@@ -23,24 +23,25 @@ public class LocalVideoData {
             MediaStore.Video.Media.SIZE ,           //  大小
             MediaStore.Video.Media.DATA             //  路径
     };
-    List<VideoParam> localVideoList = new ArrayList<>();
-    private Context context;
-    public LocalVideoData(Context context){
+    List<VideoBean> localVideoList = new ArrayList<>();
+    private Context mContext;
+    public LocalVideoData(Context mContext){
         // 有参构造函数,用于获取 ContentResolver 所需的上下文
-        this.context = context;
+        this.mContext = mContext;
+
     }
 
-    public  List<VideoParam> getVideoDataLocal(){
+    public  List<VideoBean> getVideoDataLocal(){
 
         // 获取内容提供器,获取名字、时长、大小、路径
-        ContentResolver contentResolver = context.getContentResolver();
+        ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = null;
         try {
              cursor = contentResolver.query(uri, mVideoColumn, null, null, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    VideoParam videoParam = new VideoParam();
+                    VideoBean videoParam = new VideoBean();
                     videoParam.setVideoName(cursor.getString(0));  // 名字
                     // 单位毫秒，转为时间格式
                     int duration = cursor.getInt(1);
@@ -108,4 +109,6 @@ public class LocalVideoData {
         }
         return size;
     }
+
+
 }
